@@ -1,0 +1,91 @@
+scalar Upload
+  @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
+
+type User{
+  id: ID!
+  name: String
+  email: String!
+  password: String!
+  created_at: String!
+  update_at: String!
+}
+
+type Category{
+  id: ID!
+  name: String!
+  avatar: String!
+  created_at: String!
+  updated_at: String!
+}
+
+
+input CreateCategoryInput{
+   name: String!
+   avatar: Upload!
+}
+
+input UpdateCategoryInput{
+  id: ID!
+  name: String!
+  avatar: Upload!
+}
+
+
+type Query{
+  me: User! @guard @auth
+  categories: [Category!]! @guard @paginate
+  category(id: ID! @eq) : Category! @guard @find
+}
+
+input CreateUserInput{
+  name: String!
+  email: String!
+  password: String!
+}
+
+input LoginUserInput{
+  email: String!
+  password: String!
+}
+
+type CreateUserResponse {
+    success: Boolean!
+    messages: [String!]!
+    data: User
+}
+
+type LoginUserResponse {
+    success: Boolean!
+    messages: [String!]!
+    data: User
+    token: String
+}
+
+type ResponseData{
+  success: Boolean!
+  messages: [String!]!
+  data: Category
+}
+
+type Mutation{
+  registerUser(
+    input: CreateUserInput! 
+  ): CreateUserResponse @guard @field(resolver: "App\\GraphQL\\Mutations\\RegisterUser")
+
+  loginUser(
+    input: LoginUserInput!
+  ): LoginUserResponse @guard @field(resolver: "App\\GraphQL\\Mutations\\LoginUser")
+
+  createCategory(
+    input: CreateCategoryInput!,
+    avatar: Upload @upload(disk: "public", path: "images/avatars", public: true)
+  ): ResponseData @guard @field(resolver: "App\\GraphQL\\Mutations\\CreateCategories")
+
+  updateCategory(
+    input: UpdateCategoryInput!,
+    avatar: Upload @upload(disk: "public", path: "images/avatars", public: true)
+  ): ResponseData @guard @field(resolver: "App\\GraphQL\\Mutations\\UpdateCategories")
+}
+
+
+
